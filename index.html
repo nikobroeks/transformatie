@@ -410,56 +410,128 @@
   .milestone .viz .viz-sub { fill: var(--cold-text); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
   .milestone .viz .viz-glow { fill: var(--accent); opacity: 0.18; filter: blur(6px); }
 
-  /* ---------- Dot-navigator: 5 klikbare staafjes met romeinse cijfers ---------- */
-  .dots {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: clamp(20px, 3vw, 44px);
-    padding: 4px 0;
+  /* ---------- Drag-slider: dunne goud-lijn met playhead ---------- */
+  .timeline-wrap {
+    position: relative;
+    padding: 26px 14px 30px;
+    user-select: none;
   }
-  .dot {
-    background: transparent;
-    border: 0;
-    padding: 6px 4px;
+  .timeline {
+    position: relative;
+    height: 1px;
+    background: color-mix(in oklab, var(--cold-text) 30%, transparent);
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    border-radius: 2px;
-    outline: none;
   }
-  .dot-bar {
-    width: 44px;
-    height: 3px;
-    background: color-mix(in oklab, var(--cold-text) 28%, transparent);
-    border-radius: 2px;
-    transition: background .3s var(--ease), height .3s var(--ease), width .3s var(--ease), box-shadow .3s var(--ease);
+  .timeline .fill {
+    position: absolute; inset: 0;
+    width: calc(var(--p) * 100%);
+    background: var(--accent);
+    transition: width .08s linear;
+    box-shadow: 0 0 10px rgba(232, 199, 126, 0.5);
+    pointer-events: none;
   }
-  .dot-num {
+  .tick {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 1px;
+    height: 18px;
+    background: rgba(245, 237, 216, 0.30);
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: background .35s var(--ease), height .35s var(--ease), box-shadow .35s var(--ease);
+    z-index: 2;
+  }
+  .tick::after {
+    content: "";
+    position: absolute;
+    inset: -16px -12px;
+  }
+  .tick:hover { background: rgba(245, 237, 216, 0.65); }
+  .tick.is-passed { background: var(--accent); height: 24px; }
+  .tick.is-current {
+    height: 30px;
+    box-shadow: 0 0 18px rgba(232, 199, 126, 0.7);
+  }
+  .tick:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 2px; }
+  .tick .tick-num {
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 50%;
+    transform: translateX(-50%);
     font-family: var(--display);
     font-weight: 400;
     font-size: 14px;
     letter-spacing: 0.08em;
-    color: rgba(245, 237, 216, 0.4);
-    transition: color .3s var(--ease), text-shadow .3s var(--ease);
-    line-height: 1;
+    color: rgba(245, 237, 216, 0.42);
+    transition: color .35s var(--ease), text-shadow .35s var(--ease);
+    white-space: nowrap;
     text-transform: uppercase;
   }
-  .dot:hover .dot-bar { background: color-mix(in oklab, var(--accent) 55%, transparent); }
-  .dot:hover .dot-num { color: var(--warm-mute); }
-  .dot.is-active .dot-bar {
-    background: var(--accent);
-    height: 4px;
-    width: 56px;
-    box-shadow: 0 0 18px rgba(232, 199, 126, 0.55);
-  }
-  .dot.is-active .dot-num {
+  .tick.is-passed .tick-num { color: var(--accent); }
+  .tick.is-current .tick-num {
     color: var(--warm-text);
-    text-shadow: 0 0 10px rgba(232, 199, 126, 0.5);
+    text-shadow: 0 0 10px rgba(232, 199, 126, 0.7);
   }
-  .dot:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+  .playhead {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--p) * 100%);
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 56px;
+    cursor: grab;
+    z-index: 3;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    transition: left .08s linear;
+  }
+  .playhead:active { cursor: grabbing; }
+  .playhead::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 100%;
+    background: var(--warm-text);
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(245, 237, 216, 0.5);
+  }
+  .playhead::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: var(--warm-text);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--bg), 0 0 22px rgba(245, 237, 216, 0.4);
+  }
+  .playhead:focus-visible::after {
+    box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent);
+  }
+  .playhead.breathing { animation: breathe 1800ms var(--ease) 600ms 2; }
+  @keyframes breathe {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.15); }
+  }
+  .endcap {
+    position: absolute;
+    top: 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--cold-text);
+    text-transform: uppercase;
+    pointer-events: none;
+    transition: color .35s var(--ease);
+  }
+  .endcap.start { left: 14px; }
+  .endcap.end   { right: 14px; color: color-mix(in oklab, var(--cold-text) calc((1 - var(--p)) * 100%), var(--accent)); }
 
   /* ---------- Footer-rij (cinematic credit-line) ---------- */
   .footer {
@@ -498,9 +570,13 @@
     .milestone .what,
     .milestone .brought { font-size: 13px; max-width: none; }
     .m-roman { font-size: 56px; right: 14px; }
-    .dots { gap: 14px; }
-    .dot-bar { width: 32px; }
-    .dot.is-active .dot-bar { width: 40px; }
+    .timeline-wrap { padding: 22px 10px 26px; }
+    .playhead { height: 48px; }
+    .tick { height: 16px; }
+    .tick.is-passed { height: 22px; }
+    .tick.is-current { height: 26px; }
+    .tick .tick-num { font-size: 12px; top: calc(100% + 10px); }
+    .endcap { font-size: 9px; letter-spacing: 0.22em; top: 8px; }
   }
 
   /* ---------- Lage viewports: laat de pagina scrollen ---------- */
@@ -510,7 +586,7 @@
 
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
-    body::before, body::after, .id-block, .milestone, .tools-grid .tool, .dot-bar, .dot-num {
+    body::before, body::after, .id-block, .milestone, .tools-grid .tool, .timeline .fill, .tick, .tick .tick-num, .playhead {
       transition: none !important;
       animation: none !important;
     }
@@ -520,7 +596,7 @@
   @media print {
     body { overflow: visible; }
     body::before, body::after { display: none; }
-    .footer, .phases, .dots { display: none; }
+    .footer, .phases, .timeline-wrap { display: none; }
     main { min-height: auto; padding: 20px; }
     .storyboard { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .milestone {
@@ -775,13 +851,19 @@
       </article>
     </div>
 
-    <!-- Dot-navigator: 5 klikbare staafjes met romeinse cijfers -->
-    <div class="dots" role="tablist" aria-label="Mijlpalen-navigatie">
-      <button class="dot" type="button" role="tab" data-idx="0" aria-label="Mijlpaal 1: Omarchy"><span class="dot-bar"></span><span class="dot-num">I</span></button>
-      <button class="dot" type="button" role="tab" data-idx="1" aria-label="Mijlpaal 2: SocialFind landkaart"><span class="dot-bar"></span><span class="dot-num">II</span></button>
-      <button class="dot" type="button" role="tab" data-idx="2" aria-label="Mijlpaal 3: Russian card game"><span class="dot-bar"></span><span class="dot-num">III</span></button>
-      <button class="dot" type="button" role="tab" data-idx="3" aria-label="Mijlpaal 4: Klantendashboard"><span class="dot-bar"></span><span class="dot-num">IV</span></button>
-      <button class="dot" type="button" role="tab" data-idx="4" aria-label="Mijlpaal 5: LinkedIn-funnel"><span class="dot-bar"></span><span class="dot-num">V</span></button>
+    <!-- Drag-slider: sleep door de tijdlijn -->
+    <div class="timeline-wrap">
+      <div class="endcap start" aria-hidden="true">Voor</div>
+      <div class="endcap end" aria-hidden="true">Nu</div>
+      <div class="timeline" id="timeline">
+        <div class="fill" aria-hidden="true"></div>
+        <button class="tick" type="button" data-pos="0.10" data-idx="0" aria-label="Mijlpaal I: Omarchy"><span class="tick-num">I</span></button>
+        <button class="tick" type="button" data-pos="0.30" data-idx="1" aria-label="Mijlpaal II: SocialFind landkaart"><span class="tick-num">II</span></button>
+        <button class="tick" type="button" data-pos="0.50" data-idx="2" aria-label="Mijlpaal III: Russian card game"><span class="tick-num">III</span></button>
+        <button class="tick" type="button" data-pos="0.70" data-idx="3" aria-label="Mijlpaal IV: Klantendashboard"><span class="tick-num">IV</span></button>
+        <button class="tick" type="button" data-pos="0.90" data-idx="4" aria-label="Mijlpaal V: LinkedIn-funnel"><span class="tick-num">V</span></button>
+        <button class="playhead breathing" id="playhead" type="button" role="slider" aria-label="Sleep door de tijdlijn" aria-valuemin="0" aria-valuemax="100" aria-valuenow="10"></button>
+      </div>
     </div>
 
     <div class="id-block now" aria-hidden="false">
@@ -816,38 +898,96 @@
 </main>
 
 <script>
-  // Carousel: één mijlpaal-paneel actief, dot-navigator + keyboard ← →.
+  // Drag-slider: sleep door de tijdlijn, ticks markeren de 5 mijlpalen.
   (() => {
-    const panels = Array.from(document.querySelectorAll('.milestone'));
-    const dots   = Array.from(document.querySelectorAll('.dot'));
-    if (!panels.length || !dots.length) return;
+    const root     = document.documentElement;
+    const playhead = document.getElementById('playhead');
+    const timeline = document.getElementById('timeline');
+    const ticks    = Array.from(document.querySelectorAll('.tick'));
+    const panels   = Array.from(document.querySelectorAll('.milestone'));
+    if (!playhead || !timeline || !panels.length) return;
 
-    let active = 0;
+    let p = 0.10; // start op tick I
+    let dragging = false;
 
-    function setActive(idx) {
-      active = Math.max(0, Math.min(panels.length - 1, idx));
-      panels.forEach((p, i) => p.classList.toggle('is-active', i === active));
-      dots.forEach((d, i) => {
-        d.classList.toggle('is-active', i === active);
-        d.setAttribute('aria-selected', i === active ? 'true' : 'false');
-        d.setAttribute('tabindex', i === active ? '0' : '-1');
-      });
+    function activeIdx(prog) {
+      let idx = 0;
+      for (let i = 0; i < ticks.length; i++) {
+        const pos = parseFloat(ticks[i].dataset.pos);
+        if (prog >= pos - 0.05) idx = i;
+      }
+      return idx;
     }
 
-    dots.forEach((d, i) => {
-      d.addEventListener('click', () => setActive(i));
+    function render() {
+      root.style.setProperty('--p', p.toFixed(4));
+      const idx = activeIdx(p);
+      panels.forEach((m, i) => m.classList.toggle('is-active', i === idx));
+      ticks.forEach((t, i) => {
+        const pos = parseFloat(t.dataset.pos);
+        t.classList.toggle('is-passed', p >= pos - 0.005);
+        t.classList.toggle('is-current', i === idx);
+      });
+      playhead.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+    }
+
+    function setP(v) {
+      p = Math.max(0, Math.min(1, v));
+      render();
+    }
+
+    function progressFromEvent(e) {
+      const rect = timeline.getBoundingClientRect();
+      return (e.clientX - rect.left) / rect.width;
+    }
+
+    playhead.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      dragging = true;
+      playhead.classList.remove('breathing');
+      playhead.setPointerCapture?.(e.pointerId);
+      setP(progressFromEvent(e));
+    });
+
+    timeline.addEventListener('pointerdown', e => {
+      if (e.target.closest('.tick') || e.target.closest('.playhead')) return;
+      dragging = true;
+      playhead.classList.remove('breathing');
+      setP(progressFromEvent(e));
+    });
+
+    addEventListener('pointermove', e => {
+      if (!dragging) return;
+      setP(progressFromEvent(e));
+    });
+    addEventListener('pointerup',     () => { dragging = false; });
+    addEventListener('pointercancel', () => { dragging = false; });
+
+    ticks.forEach(t => {
+      t.addEventListener('click', e => {
+        e.stopPropagation();
+        playhead.classList.remove('breathing');
+        setP(parseFloat(t.dataset.pos));
+      });
     });
 
     document.addEventListener('keydown', e => {
+      const step = e.shiftKey ? 0.10 : 0.02;
+      let handled = true;
       switch (e.key) {
-        case 'ArrowRight': setActive(active + 1); e.preventDefault(); break;
-        case 'ArrowLeft':  setActive(active - 1); e.preventDefault(); break;
-        case 'Home': setActive(0); e.preventDefault(); break;
-        case 'End':  setActive(panels.length - 1); e.preventDefault(); break;
+        case 'ArrowRight': setP(p + step); break;
+        case 'ArrowLeft':  setP(p - step); break;
+        case 'Home': setP(0); break;
+        case 'End':  setP(1); break;
+        default: handled = false;
+      }
+      if (handled) {
+        e.preventDefault();
+        playhead.classList.remove('breathing');
       }
     });
 
-    setActive(0);
+    render();
   })();
 </script>
 </body>
