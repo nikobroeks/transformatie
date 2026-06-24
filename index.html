@@ -98,10 +98,10 @@
   /* ---------- Middenblok: serif-zinnen + tijdlijn + mijlpaal-kaart ---------- */
   .stage {
     display: grid;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto 1fr auto auto;
     grid-template-columns: 1fr;
-    gap: clamp(16px, 2.4vh, 28px);
-    max-width: 1320px;
+    gap: clamp(14px, 2vh, 24px);
+    max-width: 1280px;
     width: 100%;
     margin: 0 auto;
     min-height: 0;
@@ -243,54 +243,66 @@
   .id-block .horizon p strong { font-style: normal; color: var(--accent); font-weight: 600; }
 
   /* ---------- Storyboard-grid ---------- */
-  /* ---------- Storyboard: 5 mijlpaal-panels ---------- */
+  /* ---------- Carousel: één mijlpaal-paneel tegelijk, gestackt ---------- */
   .storyboard {
+    position: relative;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: clamp(10px, 1.2vw, 18px);
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
     width: 100%;
+    min-height: 0;
   }
 
   .milestone {
+    grid-row: 1;
+    grid-column: 1;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 14px 12px 12px;
-    border: 1px solid color-mix(in oklab, var(--accent) 18%, var(--cold-line));
-    border-radius: 4px;
+    display: grid;
+    grid-template-columns: minmax(360px, 52%) 1fr;
+    gap: clamp(22px, 3vw, 40px);
+    align-items: center;
+    text-align: left;
+    padding: clamp(18px, 2.4vw, 28px);
+    border: 1px solid color-mix(in oklab, var(--accent) 22%, var(--cold-line));
+    border-radius: 5px;
     background: linear-gradient(
       180deg,
-      color-mix(in oklab, var(--accent) 4%, transparent) 0%,
-      rgba(0, 0, 0, 0.45) 100%
+      color-mix(in oklab, var(--accent) 5%, transparent) 0%,
+      rgba(0, 0, 0, 0.55) 100%
     );
     box-shadow:
-      0 14px 32px -16px rgba(0, 0, 0, 0.8),
-      0 0 60px -28px rgba(232, 199, 126, 0.25);
-    transition: border-color .3s var(--ease), box-shadow .3s var(--ease), transform .3s var(--ease);
+      0 24px 48px -20px rgba(0, 0, 0, 0.9),
+      0 0 100px -28px rgba(232, 199, 126, 0.3);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .45s var(--ease), transform .45s var(--ease);
+    pointer-events: none;
     overflow: hidden;
     outline: none;
   }
-  .milestone:hover,
+  .milestone.is-active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
   .milestone:focus-visible {
-    border-color: color-mix(in oklab, var(--accent) 55%, var(--cold-line));
     box-shadow:
-      0 22px 42px -16px rgba(0, 0, 0, 0.92),
-      0 0 80px -20px rgba(232, 199, 126, 0.45);
-    transform: translateY(-3px);
+      0 24px 48px -20px rgba(0, 0, 0, 0.9),
+      0 0 0 2px var(--accent),
+      0 0 100px -28px rgba(232, 199, 126, 0.5);
   }
 
   /* Romeinse cijfer als watermerk in rechterbovenhoek */
   .m-roman {
     position: absolute;
-    top: 4px;
-    right: 10px;
+    top: 8px;
+    right: 18px;
     font-family: var(--display);
     font-weight: 400;
-    font-size: clamp(34px, 3.4vw, 56px);
+    font-size: clamp(56px, 7vw, 100px);
     line-height: 1;
     color: var(--accent);
-    opacity: 0.16;
+    opacity: 0.12;
     pointer-events: none;
     z-index: 0;
     letter-spacing: 0.04em;
@@ -298,12 +310,15 @@
 
   .milestone .m-media {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 9;
     width: 100%;
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
     background: #0a0805;
-    border: 1px solid color-mix(in oklab, var(--accent) 16%, var(--cold-line));
+    border: 1px solid color-mix(in oklab, var(--accent) 22%, var(--cold-line));
+    box-shadow:
+      0 18px 40px -16px rgba(0, 0, 0, 0.9),
+      0 0 60px -22px rgba(232, 199, 126, 0.25);
     z-index: 1;
   }
   .milestone .m-media img,
@@ -318,65 +333,74 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px;
     position: relative;
     z-index: 1;
   }
   .milestone .kicker {
     font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.3em;
+    font-size: 10px;
+    letter-spacing: 0.4em;
     text-transform: uppercase;
     color: var(--accent);
     margin: 0;
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
   }
   .milestone .kicker svg { display: none; }
+  .milestone .kicker::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.6;
+  }
   .milestone h2 {
     font-family: var(--display);
     font-weight: 400;
-    font-size: clamp(16px, 1.4vw, 22px);
-    line-height: 1.05;
+    font-size: clamp(28px, 3.4vw, 48px);
+    line-height: 0.95;
     color: var(--warm-text);
     margin: 0;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.005em;
     text-transform: uppercase;
   }
   .milestone .what {
-    font-size: 11.5px;
-    line-height: 1.4;
+    font-size: 14px;
+    line-height: 1.5;
     color: var(--warm-mute);
-    max-width: none;
+    max-width: 44ch;
     margin: 0;
   }
   .milestone .brought {
     font-family: var(--sans);
     font-weight: 500;
-    font-size: 11.5px;
-    line-height: 1.4;
+    font-size: 14px;
+    line-height: 1.5;
     color: var(--accent);
-    max-width: none;
+    max-width: 44ch;
     margin: 0;
-    padding-top: 8px;
-    border-top: 1px solid color-mix(in oklab, var(--accent) 22%, transparent);
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in oklab, var(--accent) 26%, transparent);
     letter-spacing: -0.005em;
   }
   .milestone .hobbel {
     font-family: var(--sans);
-    font-size: 10.5px;
-    line-height: 1.4;
+    font-size: 12.5px;
+    line-height: 1.5;
     color: var(--warm-mute);
-    max-width: none;
+    max-width: 50ch;
     margin: 0;
     opacity: .85;
   }
   .milestone .hobbel strong {
     font-weight: 600;
     color: var(--accent);
-    margin-right: 4px;
+    margin-right: 6px;
   }
 
-  /* SVG-tokens voor klantdata-visuals — kleiner in storyboard-kolom */
+  /* SVG-tokens voor klantdata-visuals */
   .milestone .viz text { font-family: var(--mono); fill: var(--warm-mute); }
   .milestone .viz .viz-bg-line { stroke: color-mix(in oklab, var(--accent) 22%, var(--cold-line)); stroke-width: 1.2; fill: none; }
   .milestone .viz .viz-node { fill: #141416; stroke: color-mix(in oklab, var(--accent) 28%, var(--cold-line)); stroke-width: 1; }
@@ -385,6 +409,57 @@
   .milestone .viz .viz-label-accent { fill: var(--accent); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; }
   .milestone .viz .viz-sub { fill: var(--cold-text); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
   .milestone .viz .viz-glow { fill: var(--accent); opacity: 0.18; filter: blur(6px); }
+
+  /* ---------- Dot-navigator: 5 klikbare staafjes met romeinse cijfers ---------- */
+  .dots {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(20px, 3vw, 44px);
+    padding: 4px 0;
+  }
+  .dot {
+    background: transparent;
+    border: 0;
+    padding: 6px 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    border-radius: 2px;
+    outline: none;
+  }
+  .dot-bar {
+    width: 44px;
+    height: 3px;
+    background: color-mix(in oklab, var(--cold-text) 28%, transparent);
+    border-radius: 2px;
+    transition: background .3s var(--ease), height .3s var(--ease), width .3s var(--ease), box-shadow .3s var(--ease);
+  }
+  .dot-num {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: rgba(245, 237, 216, 0.4);
+    transition: color .3s var(--ease), text-shadow .3s var(--ease);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .dot:hover .dot-bar { background: color-mix(in oklab, var(--accent) 55%, transparent); }
+  .dot:hover .dot-num { color: var(--warm-mute); }
+  .dot.is-active .dot-bar {
+    background: var(--accent);
+    height: 4px;
+    width: 56px;
+    box-shadow: 0 0 18px rgba(232, 199, 126, 0.55);
+  }
+  .dot.is-active .dot-num {
+    color: var(--warm-text);
+    text-shadow: 0 0 10px rgba(232, 199, 126, 0.5);
+  }
+  .dot:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
 
   /* ---------- Footer-rij (cinematic credit-line) ---------- */
   .footer {
@@ -397,14 +472,7 @@
   }
   .footer .name { color: var(--warm-mute); opacity: .5; font-style: italic; letter-spacing: 0.2em; }
 
-  /* ---------- Tussen-breakpoint: 3-koloms grid ---------- */
-  @media (min-width: 721px) and (max-width: 1099px) {
-    .storyboard { grid-template-columns: repeat(3, 1fr); }
-    .checklist  { grid-template-columns: repeat(4, auto); }
-    .milestone h2 { font-size: clamp(18px, 2vw, 24px); }
-  }
-
-  /* ---------- Mobile: alles onder elkaar ---------- */
+  /* ---------- Mobile: paneel 1-koloms (media boven, tekst onder) ---------- */
   @media (max-width: 720px) {
     body { overflow: auto; }
     main {
@@ -421,12 +489,18 @@
       grid-template-columns: repeat(2, 1fr);
       max-width: 360px;
     }
-    .storyboard { grid-template-columns: 1fr; gap: 14px; }
-    .milestone .m-media { max-width: 360px; align-self: center; }
-    .milestone h2 { font-size: clamp(20px, 5.5vw, 28px); }
+    .milestone {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 18px 16px;
+    }
+    .milestone h2 { font-size: clamp(24px, 6.5vw, 32px); }
     .milestone .what,
-    .milestone .brought { font-size: 13px; }
-    .m-roman { font-size: 44px; }
+    .milestone .brought { font-size: 13px; max-width: none; }
+    .m-roman { font-size: 56px; right: 14px; }
+    .dots { gap: 14px; }
+    .dot-bar { width: 32px; }
+    .dot.is-active .dot-bar { width: 40px; }
   }
 
   /* ---------- Lage viewports: laat de pagina scrollen ---------- */
@@ -436,20 +510,28 @@
 
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
-    body::before, body::after, .id-block, .milestone, .tools-grid .tool {
+    body::before, body::after, .id-block, .milestone, .tools-grid .tool, .dot-bar, .dot-num {
       transition: none !important;
       animation: none !important;
     }
   }
 
-  /* ---------- Print: storyboard 2-koloms voor papier ---------- */
+  /* ---------- Print: alle 5 panels uitgevouwen 2-koloms ---------- */
   @media print {
     body { overflow: visible; }
     body::before, body::after { display: none; }
-    .footer, .phases { display: none; }
+    .footer, .phases, .dots { display: none; }
     main { min-height: auto; padding: 20px; }
-    .storyboard { grid-template-columns: 1fr 1fr; gap: 16px; }
-    .milestone { break-inside: avoid; page-break-inside: avoid; }
+    .storyboard { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .milestone {
+      grid-row: auto;
+      grid-column: auto;
+      opacity: 1 !important;
+      transform: none !important;
+      pointer-events: auto;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
   }
 </style>
 </head>
@@ -483,7 +565,7 @@
 
     <div class="storyboard" aria-label="Vijf mijlpalen van mijn transformatie">
 
-      <article class="milestone" data-idx="0" tabindex="0">
+      <article class="milestone" data-idx="0" tabindex="-1">
         <div class="m-roman" aria-hidden="true">I</div>
         <div class="m-media">
           <img src="assets/Omarchy.png" alt="Hyprland-desktop op Omarchy">
@@ -496,7 +578,7 @@
         </div>
       </article>
 
-      <article class="milestone" data-idx="1" tabindex="0">
+      <article class="milestone" data-idx="1" tabindex="-1">
         <div class="m-roman" aria-hidden="true">II</div>
         <div class="m-media">
           <img src="assets/Landkaart%20interface.png" alt="SocialFind landkaart-tool met provincie geselecteerd">
@@ -509,7 +591,7 @@
         </div>
       </article>
 
-      <article class="milestone" data-idx="2" tabindex="0">
+      <article class="milestone" data-idx="2" tabindex="-1">
         <div class="m-roman" aria-hidden="true">III</div>
         <div class="m-media">
           <img src="assets/Russian%20Cards.png" alt="Russian card game speelscherm">
@@ -522,7 +604,7 @@
         </div>
       </article>
 
-      <article class="milestone print-final" data-idx="3" tabindex="0">
+      <article class="milestone print-final" data-idx="3" tabindex="-1">
         <div class="m-roman" aria-hidden="true">IV</div>
         <div class="m-media">
           <svg class="viz" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Architectuur klantendashboard">
@@ -566,7 +648,7 @@
         </div>
       </article>
 
-      <article class="milestone" data-idx="4" tabindex="0">
+      <article class="milestone" data-idx="4" tabindex="-1">
         <div class="m-roman" aria-hidden="true">V</div>
         <div class="m-media">
           <svg class="viz" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="LinkedIn-automatisering op eigen Hetzner-stack met Claude API">
@@ -693,6 +775,15 @@
       </article>
     </div>
 
+    <!-- Dot-navigator: 5 klikbare staafjes met romeinse cijfers -->
+    <div class="dots" role="tablist" aria-label="Mijlpalen-navigatie">
+      <button class="dot" type="button" role="tab" data-idx="0" aria-label="Mijlpaal 1: Omarchy"><span class="dot-bar"></span><span class="dot-num">I</span></button>
+      <button class="dot" type="button" role="tab" data-idx="1" aria-label="Mijlpaal 2: SocialFind landkaart"><span class="dot-bar"></span><span class="dot-num">II</span></button>
+      <button class="dot" type="button" role="tab" data-idx="2" aria-label="Mijlpaal 3: Russian card game"><span class="dot-bar"></span><span class="dot-num">III</span></button>
+      <button class="dot" type="button" role="tab" data-idx="3" aria-label="Mijlpaal 4: Klantendashboard"><span class="dot-bar"></span><span class="dot-num">IV</span></button>
+      <button class="dot" type="button" role="tab" data-idx="4" aria-label="Mijlpaal 5: LinkedIn-funnel"><span class="dot-bar"></span><span class="dot-num">V</span></button>
+    </div>
+
     <div class="id-block now" aria-hidden="false">
       <div class="label">Na</div>
       <p class="quote">Ik bouw wat ik bedenk.</p>
@@ -725,21 +816,38 @@
 </main>
 
 <script>
-  // Storyboard: keyboard ← / → roteert focus tussen mijlpaal-panels.
+  // Carousel: één mijlpaal-paneel actief, dot-navigator + keyboard ← →.
   (() => {
     const panels = Array.from(document.querySelectorAll('.milestone'));
-    if (!panels.length) return;
-    document.addEventListener('keydown', e => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      const focused = document.activeElement;
-      let i = panels.indexOf(focused);
-      if (i === -1) i = e.key === 'ArrowRight' ? -1 : panels.length;
-      const next = e.key === 'ArrowRight'
-        ? Math.min(panels.length - 1, i + 1)
-        : Math.max(0, i - 1);
-      panels[next].focus({ preventScroll: false });
-      e.preventDefault();
+    const dots   = Array.from(document.querySelectorAll('.dot'));
+    if (!panels.length || !dots.length) return;
+
+    let active = 0;
+
+    function setActive(idx) {
+      active = Math.max(0, Math.min(panels.length - 1, idx));
+      panels.forEach((p, i) => p.classList.toggle('is-active', i === active));
+      dots.forEach((d, i) => {
+        d.classList.toggle('is-active', i === active);
+        d.setAttribute('aria-selected', i === active ? 'true' : 'false');
+        d.setAttribute('tabindex', i === active ? '0' : '-1');
+      });
+    }
+
+    dots.forEach((d, i) => {
+      d.addEventListener('click', () => setActive(i));
     });
+
+    document.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'ArrowRight': setActive(active + 1); e.preventDefault(); break;
+        case 'ArrowLeft':  setActive(active - 1); e.preventDefault(); break;
+        case 'Home': setActive(0); e.preventDefault(); break;
+        case 'End':  setActive(panels.length - 1); e.preventDefault(); break;
+      }
+    });
+
+    setActive(0);
   })();
 </script>
 </body>
