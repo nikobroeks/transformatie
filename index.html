@@ -98,29 +98,46 @@
   /* ---------- Middenblok: serif-zinnen + tijdlijn + mijlpaal-kaart ---------- */
   .stage {
     display: grid;
-    grid-template-rows: auto 1fr auto auto;
+    grid-template-rows: 1fr auto;
     grid-template-columns: 1fr;
-    gap: clamp(14px, 2vh, 24px);
+    gap: clamp(18px, 3vh, 36px);
     max-width: 1280px;
     width: 100%;
     margin: 0 auto;
     min-height: 0;
   }
 
+  /* Scene = identities en mijlpaal delen dezelfde grid-cel */
+  .identities,
+  .card-area {
+    grid-row: 1;
+    grid-column: 1;
+    min-height: 0;
+    transition: opacity .5s var(--ease);
+  }
+  .identities.is-hidden,
+  .card-area.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .identities {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-self: stretch;
+  }
+
   .id-block {
+    grid-row: 1;
+    grid-column: 1;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 0 clamp(20px, 5vw, 60px);
-  }
-  .id-block.start {
-    padding-bottom: 10px;
-    border-bottom: 1px solid color-mix(in oklab, var(--accent) 18%, transparent);
-  }
-  .id-block.now {
-    padding-top: 14px;
-    border-top: 1px solid color-mix(in oklab, var(--accent) 22%, transparent);
+    padding: 0 clamp(20px, 5vw, 80px);
+    transition: opacity .35s var(--ease);
   }
   .id-block > * { width: 100%; }
   .id-block .label {
@@ -129,7 +146,7 @@
     letter-spacing: 0.42em;
     text-transform: uppercase;
     color: var(--cold-text);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
   .id-block.now .label::before { content: "— "; opacity: 0.6; }
   .id-block.now .label::after { content: " —"; opacity: 0.6; }
@@ -137,35 +154,31 @@
     font-family: var(--display);
     font-weight: 400;
     font-style: normal;
-    font-size: clamp(22px, 2.6vw, 36px);
-    line-height: 1.0;
+    font-size: clamp(32px, 4.4vw, 56px);
+    line-height: 0.95;
     letter-spacing: 0.005em;
     text-transform: uppercase;
-    margin: 0 auto 10px;
-    max-width: 30ch;
-  }
-  .id-block.now .quote {
-    color: var(--warm-text);
-    font-size: clamp(26px, 3vw, 42px);
+    margin: 0 auto 16px;
+    max-width: 22ch;
   }
   .id-block .body {
     font-family: var(--sans);
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--warm-mute);
-    max-width: 60ch;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--mute-now);
+    max-width: 46ch;
     margin: 0 auto;
   }
+  .id-block.now .quote { color: var(--warm-text); }
   .id-block.now .label { color: var(--accent); }
+  .id-block.now .body { color: var(--warm-mute); }
 
-  /* Voor: before-checklist (horizontaal op desktop) */
+  /* Voor: before-checklist */
   .checklist {
     display: grid;
-    grid-template-columns: repeat(7, auto);
-    gap: 8px 18px;
-    justify-content: center;
-    margin: 14px auto 0;
-    max-width: none;
+    gap: 8px;
+    margin: 26px auto 0;
+    max-width: 340px;
     text-align: left;
   }
   .checklist .check {
@@ -242,84 +255,191 @@
   .id-block .horizon p { margin: 0 auto; font-size: 12.5px; line-height: 1.5; color: var(--warm-mute); font-style: italic; }
   .id-block .horizon p strong { font-style: normal; color: var(--accent); font-weight: 600; }
 
-  /* ---------- Storyboard-grid ---------- */
-  /* ---------- Carousel: één mijlpaal-paneel tegelijk, gestackt ---------- */
-  .storyboard {
+  /* Cross-fade via --p · Voor verdwijnt voor mijlpaal 1, Na verschijnt na mijlpaal 5 */
+  .id-block.start { opacity: clamp(0, calc(1 - (var(--p) - 0.02) * 9), 1); }
+  .id-block.now   { opacity: clamp(0, calc((var(--p) - 0.90) * 12), 1); }
+
+  /* ---------- Tijdlijn · 35mm filmstrook ---------- */
+  .timeline-wrap {
     position: relative;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-    width: 100%;
-    min-height: 0;
+    padding: 30px 14px 30px;
+    user-select: none;
+    grid-row: 2;
   }
 
-  .milestone {
-    grid-row: 1;
-    grid-column: 1;
+  /* Dunne goud-gevulde tijdlijn */
+  .timeline {
     position: relative;
+    height: 1px;
+    background: color-mix(in oklab, var(--cold-text) 30%, transparent);
+    cursor: pointer;
+  }
+  .timeline .fill {
+    position: absolute; inset: 0;
+    width: calc(var(--p) * 100%);
+    background: var(--accent);
+    transition: width .08s linear;
+    box-shadow: 0 0 10px rgba(232, 199, 126, 0.55);
+    pointer-events: none;
+  }
+  .timeline .frame-dividers { display: none; }
+
+  .tick {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 1px;
+    height: 18px;
+    background: rgba(245, 237, 216, 0.30);
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: background .35s var(--ease), height .35s var(--ease), box-shadow .35s var(--ease);
+    z-index: 2;
+  }
+  .tick::after {
+    content: "";
+    position: absolute;
+    inset: -16px -12px;
+  }
+  .tick:hover { background: rgba(245, 237, 216, 0.65); }
+  .tick.is-passed { background: var(--accent); height: 24px; }
+  .tick.is-current {
+    height: 30px;
+    box-shadow: 0 0 18px rgba(232, 199, 126, 0.7);
+  }
+  .tick:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 2px; }
+  .tick.just-activated { animation: tickPulse 700ms var(--ease); }
+  @keyframes tickPulse {
+    0%   { box-shadow: 0 0 0 rgba(232, 199, 126, 0); height: 30px; }
+    35%  { box-shadow: 0 0 28px rgba(232, 199, 126, 1); height: 38px; }
+    100% { box-shadow: 0 0 18px rgba(232, 199, 126, 0.7); height: 30px; }
+  }
+
+  .tick .tick-num {
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: rgba(245, 237, 216, 0.42);
+    transition: color .35s var(--ease), text-shadow .35s var(--ease);
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .tick.is-passed .tick-num { color: var(--accent); }
+  .tick.is-current .tick-num {
+    color: var(--warm-text);
+    text-shadow: 0 0 10px rgba(232, 199, 126, 0.7);
+  }
+
+  /* Playhead = simpele witte verticale lijn met dotje */
+  .playhead {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 56px;
+    cursor: grab;
+    z-index: 3;
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+  .playhead:active { cursor: grabbing; }
+  .playhead::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 100%;
+    background: var(--warm-text);
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(245, 237, 216, 0.5);
+  }
+  .playhead::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: var(--warm-text);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--bg), 0 0 22px rgba(245, 237, 216, 0.4);
+  }
+  .playhead:focus-visible::after {
+    box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent);
+  }
+  .playhead.breathing { animation: breathe 1800ms var(--ease) 600ms 2; }
+  @keyframes breathe {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.15); }
+  }
+
+  /* Eindcap-labels: Voor / Nu */
+  .endcap {
+    position: absolute;
+    top: 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--cold-text);
+    transition: color .35s var(--ease);
+    pointer-events: none;
+    text-transform: uppercase;
+  }
+  .endcap.start { left: 14px; }
+  .endcap.end   { right: 14px; color: color-mix(in oklab, var(--cold-text) calc((1 - var(--p)) * 100%), var(--accent)); }
+
+  /* ---------- Mijlpaal-kaart ---------- */
+  .card-area {
+    position: relative;
+  }
+  .milestone {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .45s var(--ease), transform .45s var(--ease);
+    transform: translateY(6px);
+    pointer-events: none;
+    max-width: 1200px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: minmax(360px, 52%) 1fr;
-    gap: clamp(22px, 3vw, 40px);
+    grid-template-columns: minmax(420px, 60%) 1fr;
+    gap: clamp(24px, 3.5vw, 44px);
     align-items: center;
     text-align: left;
-    padding: clamp(18px, 2.4vw, 28px);
-    border: 1px solid color-mix(in oklab, var(--accent) 22%, var(--cold-line));
-    border-radius: 5px;
-    background: linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--accent) 5%, transparent) 0%,
-      rgba(0, 0, 0, 0.55) 100%
-    );
-    box-shadow:
-      0 24px 48px -20px rgba(0, 0, 0, 0.9),
-      0 0 100px -28px rgba(232, 199, 126, 0.3);
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity .45s var(--ease), transform .45s var(--ease);
-    pointer-events: none;
-    overflow: hidden;
-    outline: none;
   }
   .milestone.is-active {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
   }
-  .milestone:focus-visible {
-    box-shadow:
-      0 24px 48px -20px rgba(0, 0, 0, 0.9),
-      0 0 0 2px var(--accent),
-      0 0 100px -28px rgba(232, 199, 126, 0.5);
-  }
-
-  /* Romeinse cijfer als watermerk in rechterbovenhoek */
-  .m-roman {
-    position: absolute;
-    top: 8px;
-    right: 18px;
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: clamp(56px, 7vw, 100px);
-    line-height: 1;
-    color: var(--accent);
-    opacity: 0.12;
-    pointer-events: none;
-    z-index: 0;
-    letter-spacing: 0.04em;
-  }
 
   .milestone .m-media {
     position: relative;
     aspect-ratio: 16 / 9;
     width: 100%;
-    border-radius: 4px;
+    max-height: 100%;
+    border-radius: 6px;
     overflow: hidden;
     background: #0a0805;
     border: 1px solid color-mix(in oklab, var(--accent) 22%, var(--cold-line));
     box-shadow:
-      0 18px 40px -16px rgba(0, 0, 0, 0.9),
-      0 0 60px -22px rgba(232, 199, 126, 0.25);
-    z-index: 1;
+      0 24px 60px -20px rgba(0, 0, 0, 0.9),
+      0 0 80px -20px rgba(232, 199, 126, 0.22);
+    transition: box-shadow .35s var(--ease), border-color .35s var(--ease);
+  }
+  .milestone.is-active .m-media {
+    box-shadow:
+      0 32px 80px -20px rgba(0, 0, 0, 0.95),
+      0 0 120px -20px rgba(232, 199, 126, 0.35);
   }
   .milestone .m-media img,
   .milestone .m-media svg {
@@ -329,27 +449,21 @@
     display: block;
   }
 
-  .milestone .m-text {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    position: relative;
-    z-index: 1;
-  }
+  .milestone .m-text { min-width: 0; }
   .milestone .kicker {
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.4em;
     text-transform: uppercase;
     color: var(--accent);
-    margin: 0;
+    margin-bottom: 10px;
     display: inline-flex;
     align-items: center;
     gap: 10px;
   }
   .milestone .kicker svg { display: none; }
-  .milestone .kicker::before {
+  .milestone .kicker::before,
+  .milestone .kicker::after {
     content: "";
     width: 22px;
     height: 1px;
@@ -359,40 +473,38 @@
   .milestone h2 {
     font-family: var(--display);
     font-weight: 400;
-    font-size: clamp(28px, 3.4vw, 48px);
-    line-height: 0.95;
+    font-size: clamp(32px, 4.4vw, 56px);
+    line-height: 0.92;
     color: var(--warm-text);
-    margin: 0;
+    margin: 0 0 16px 0;
     letter-spacing: 0.005em;
     text-transform: uppercase;
   }
   .milestone .what {
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 14.5px;
+    line-height: 1.55;
     color: var(--warm-mute);
-    max-width: 44ch;
-    margin: 0;
+    max-width: 38ch;
+    margin: 0 0 12px;
   }
   .milestone .brought {
     font-family: var(--sans);
     font-weight: 500;
-    font-size: 14px;
+    font-size: 14.5px;
     line-height: 1.5;
     color: var(--accent);
-    max-width: 44ch;
+    max-width: 38ch;
     margin: 0;
-    padding-top: 10px;
-    border-top: 1px solid color-mix(in oklab, var(--accent) 26%, transparent);
     letter-spacing: -0.005em;
   }
   .milestone .hobbel {
     font-family: var(--sans);
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.5;
     color: var(--warm-mute);
     max-width: 50ch;
-    margin: 0;
-    opacity: .85;
+    margin: 2px 0 6px;
+    opacity: .8;
   }
   .milestone .hobbel strong {
     font-weight: 600;
@@ -409,57 +521,23 @@
   .milestone .viz .viz-label-accent { fill: var(--accent); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; }
   .milestone .viz .viz-sub { fill: var(--cold-text); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
   .milestone .viz .viz-glow { fill: var(--accent); opacity: 0.18; filter: blur(6px); }
-
-  /* ---------- Dot-navigator: 5 klikbare staafjes met romeinse cijfers ---------- */
-  .dots {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: clamp(20px, 3vw, 44px);
-    padding: 4px 0;
-  }
-  .dot {
-    background: transparent;
-    border: 0;
-    padding: 6px 4px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    border-radius: 2px;
-    outline: none;
-  }
-  .dot-bar {
-    width: 44px;
-    height: 3px;
-    background: color-mix(in oklab, var(--cold-text) 28%, transparent);
-    border-radius: 2px;
-    transition: background .3s var(--ease), height .3s var(--ease), width .3s var(--ease), box-shadow .3s var(--ease);
-  }
-  .dot-num {
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: 14px;
-    letter-spacing: 0.08em;
-    color: rgba(245, 237, 216, 0.4);
-    transition: color .3s var(--ease), text-shadow .3s var(--ease);
-    line-height: 1;
+  /* Lege/intro-staat */
+  .intro {
+    position: absolute; inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity .45s var(--ease);
+    text-align: center;
+    color: var(--cold-text);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
+    pointer-events: none;
   }
-  .dot:hover .dot-bar { background: color-mix(in oklab, var(--accent) 55%, transparent); }
-  .dot:hover .dot-num { color: var(--warm-mute); }
-  .dot.is-active .dot-bar {
-    background: var(--accent);
-    height: 4px;
-    width: 56px;
-    box-shadow: 0 0 18px rgba(232, 199, 126, 0.55);
-  }
-  .dot.is-active .dot-num {
-    color: var(--warm-text);
-    text-shadow: 0 0 10px rgba(232, 199, 126, 0.5);
-  }
-  .dot:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+  .intro.is-active { opacity: 1; }
+  .intro .arrow { display: inline-block; margin: 0 8px; opacity: .6; }
 
   /* ---------- Footer-rij (cinematic credit-line) ---------- */
   .footer {
@@ -472,7 +550,7 @@
   }
   .footer .name { color: var(--warm-mute); opacity: .5; font-style: italic; letter-spacing: 0.2em; }
 
-  /* ---------- Mobile: paneel 1-koloms (media boven, tekst onder) ---------- */
+  /* ---------- Mobile: tijdlijn verticaal ---------- */
   @media (max-width: 720px) {
     body { overflow: auto; }
     main {
@@ -481,57 +559,52 @@
       padding: 20px 18px;
       gap: 24px;
     }
-    .stage { gap: 18px; }
-    .id-block .quote { font-size: clamp(22px, 7vw, 32px); }
-    .id-block.now .quote { font-size: clamp(24px, 7.5vw, 34px); }
-    .id-block .body { max-width: 100%; }
-    .checklist {
-      grid-template-columns: repeat(2, 1fr);
-      max-width: 360px;
+    .identities {
+      grid-template-columns: 1fr;
+      gap: 24px;
     }
+    .id-block .quote { font-size: clamp(26px, 7vw, 36px); }
+    .id-block .body, .id-block .horizon p { max-width: 100%; }
+
+    .timeline-wrap { padding: 24px 10px 24px; }
+    .tick { height: 16px; }
+    .tick.is-passed { height: 22px; }
+    .tick.is-current { height: 26px; }
+    .tick .tick-num { font-size: 12px; top: calc(100% + 10px); }
+    .playhead { height: 48px; }
+    .playhead::after { width: 10px; height: 10px; }
+    .endcap { font-size: 9px; letter-spacing: 0.22em; top: 8px; }
+    .endcap.start { left: 10px; }
+    .endcap.end   { right: 10px; }
+
     .milestone {
       grid-template-columns: 1fr;
       gap: 14px;
-      padding: 18px 16px;
+      text-align: left;
     }
-    .milestone h2 { font-size: clamp(24px, 6.5vw, 32px); }
-    .milestone .what,
-    .milestone .brought { font-size: 13px; max-width: none; }
-    .m-roman { font-size: 56px; right: 14px; }
-    .dots { gap: 14px; }
-    .dot-bar { width: 32px; }
-    .dot.is-active .dot-bar { width: 40px; }
-  }
-
-  /* ---------- Lage viewports: laat de pagina scrollen ---------- */
-  @media (max-height: 799px) {
-    body { overflow: auto; }
+    .milestone .m-media { max-width: 280px; }
   }
 
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
-    body::before, body::after, .id-block, .milestone, .tools-grid .tool, .dot-bar, .dot-num {
+    body::before, body::after, .id-block, .timeline .fill, .tick, .tick .tick-num,
+    .milestone, .milestone .m-media, .intro, .endcap.end, .playhead {
       transition: none !important;
       animation: none !important;
     }
+    .tick.is-current::before { opacity: 0.8; }
   }
 
-  /* ---------- Print: alle 5 panels uitgevouwen 2-koloms ---------- */
+  /* ---------- Print: forceer eindtoestand ---------- */
   @media print {
+    :root { --p: 1; }
     body { overflow: visible; }
-    body::before, body::after { display: none; }
-    .footer, .phases, .dots { display: none; }
-    main { min-height: auto; padding: 20px; }
-    .storyboard { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .milestone {
-      grid-row: auto;
-      grid-column: auto;
-      opacity: 1 !important;
-      transform: none !important;
-      pointer-events: auto;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
+    .playhead, .footer { display: none; }
+    body::before { opacity: 1; }
+    main { min-height: auto; }
+    .id-block.start { opacity: 0.35; }
+    .id-block.now { opacity: 1; }
+    .milestone.print-final { opacity: 1; transform: none; }
   }
 </style>
 </head>
@@ -542,31 +615,97 @@
   <div class="phases" aria-hidden="true">
     <span class="meta">Nikolay Broeks</span>
     <span class="spacer"></span>
-    <span class="ph active">Reel 01 · Acts I–V</span>
+    <span class="ph" data-ph="start">Opening</span>
+    <span class="dot"></span>
+    <span class="ph" data-ph="mid">Onderweg</span>
+    <span class="dot"></span>
+    <span class="ph" data-ph="end">Finale</span>
   </div>
 
   <!-- Het centrale verhaal -->
   <section class="stage" aria-label="De transformatie van Niko">
 
-    <div class="id-block start" aria-hidden="false">
-      <div class="label">Voor</div>
-      <p class="quote">Ik bedenk. Iemand anders bouwt.</p>
-      <p class="body">Ik kon concepten neerzetten, maar niet zelf technisch valideren of bouwen. Mijn ideeën hadden iemand anders nodig om werkelijkheid te worden.</p>
-      <div class="checklist" aria-label="Wat ik wel en niet kon">
-        <div class="check on">Concepten bedenken</div>
-        <div class="check on">Business begrijpen</div>
-        <div class="check on">Innovatie aanjagen</div>
-        <div class="check off">Terminal &amp; Linux</div>
-        <div class="check off">Tools zelf bouwen</div>
-        <div class="check off">API-koppelingen</div>
-        <div class="check off">Deployment &amp; infra</div>
+    <div class="identities">
+      <div class="id-block start" aria-hidden="false">
+        <div class="label">Voor</div>
+        <p class="quote">Ik bedenk. Iemand anders bouwt.</p>
+        <p class="body">Ik kon concepten neerzetten, maar niet zelf technisch valideren of bouwen. Mijn ideeën hadden iemand anders nodig om werkelijkheid te worden.</p>
+        <div class="checklist" aria-label="Wat ik wel en niet kon">
+          <div class="check on">Concepten bedenken</div>
+          <div class="check on">Business begrijpen</div>
+          <div class="check on">Innovatie aanjagen</div>
+          <div class="check off">Terminal &amp; Linux</div>
+          <div class="check off">Tools zelf bouwen</div>
+          <div class="check off">API-koppelingen</div>
+          <div class="check off">Deployment &amp; infra</div>
+        </div>
+      </div>
+
+      <div class="id-block now" aria-hidden="false">
+        <div class="label">Na</div>
+        <p class="quote">Ik bouw wat ik bedenk.</p>
+        <p class="body">Business innovator met een echte technische basis. Mijn tools draaien in productie bij SocialFind. Creativiteit, techniek en business in één persoon.</p>
+        <div class="tools-grid" aria-label="Mijn huidige stack">
+          <div class="tool"><svg viewBox="0 0 24 24"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg><span>Linux<br>+ WSL</span></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/><circle cx="7" cy="6.5" r=".7" fill="currentColor"/><circle cx="7" cy="12.5" r=".7" fill="currentColor"/><circle cx="7" cy="18" r=".7" fill="currentColor"/></svg><span>Hetzner<br>VPS</span></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="3.5" height="3.5"/><rect x="8.25" y="11" width="3.5" height="3.5"/><rect x="12.5" y="11" width="3.5" height="3.5"/><rect x="8.25" y="7" width="3.5" height="3.5"/><rect x="12.5" y="7" width="3.5" height="3.5"/><path d="M3 15.5c4 2.5 12 2 17 -1 1-0.6 2-2 2-3"/></svg><span>Docker</span></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.5 7.5L17 11"/><path d="M7.5 16.5L17 13"/></svg><span>N8N</span></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Supabase</span></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><path d="M14 3 L4 14 L11 14 L10 21 L20 10 L13 10 Z" fill="currentColor"/></svg><span>Redis</span></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><path d="M12 3 L21 19 L3 19 Z"/></svg><span>Vercel</span></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><path d="M12 2l1.5 8L21 12l-7.5 1.5L12 22l-1.5-8.5L3 12l7.5-2z"/></svg><span>Claude<br>API</span></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><path d="M6 3v6"/><path d="M6 15v6"/><path d="M18 9v6"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/></svg><span>GitHub</span></div>
+        </div>
+        <div class="horizon">
+          <div class="label">Volgende scene</div>
+          <p>Eerst <strong>Linux Essentials-certificaat</strong> halen, geen nieuwe projecten nu. Het doel: de taal van developers vloeiend leren spreken, zodat ik aan technische bedrijven kan laten zien dat ik die wereld begrijp, soepel meekan in technische gesprekken, en mijn positie op de arbeidsmarkt strakker maak.</p>
+        </div>
       </div>
     </div>
 
-    <div class="storyboard" aria-label="Vijf mijlpalen van mijn transformatie">
+    <div class="timeline-wrap">
+      <div class="endcap start" aria-hidden="true">Voor</div>
+      <div class="endcap end" aria-hidden="true">Nu</div>
 
-      <article class="milestone" data-idx="0" tabindex="-1">
-        <div class="m-roman" aria-hidden="true">I</div>
+      <div class="timeline" id="timeline">
+        <div class="fill" aria-hidden="true"></div>
+        <div class="frame-dividers" aria-hidden="true"></div>
+
+        <!-- Mijlpalen — 5 gelijke filmframes op 10%, 30%, 50%, 70%, 90% -->
+        <button class="tick" type="button" data-pos="0.10" data-idx="0" aria-label="Act I: Omarchy">
+          <span class="tick-num">I</span>
+        </button>
+        <button class="tick" type="button" data-pos="0.30" data-idx="1" aria-label="Act II: SocialFind landkaart">
+          <span class="tick-num">II</span>
+        </button>
+        <button class="tick" type="button" data-pos="0.50" data-idx="2" aria-label="Act III: Russian card game">
+          <span class="tick-num">III</span>
+        </button>
+        <button class="tick" type="button" data-pos="0.70" data-idx="3" aria-label="Act IV: Klantendashboard">
+          <span class="tick-num">IV</span>
+        </button>
+        <button class="tick" type="button" data-pos="0.90" data-idx="4" aria-label="Act V: LinkedIn-automatisering">
+          <span class="tick-num">V</span>
+        </button>
+
+        <button class="playhead breathing"
+                id="playhead"
+                type="button"
+                role="slider"
+                aria-label="Sleep om door de tijd te bewegen"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                aria-valuetext="Startpunt"></button>
+      </div>
+    </div>
+
+    <div class="card-area" aria-live="polite">
+      <div class="intro is-active">
+        Sleep <span class="arrow">▸</span> de cursor over de tijdlijn
+      </div>
+
+      <article class="milestone" data-idx="0">
         <div class="m-media">
           <img src="assets/Omarchy.png" alt="Hyprland-desktop op Omarchy">
         </div>
@@ -578,8 +717,7 @@
         </div>
       </article>
 
-      <article class="milestone" data-idx="1" tabindex="-1">
-        <div class="m-roman" aria-hidden="true">II</div>
+      <article class="milestone" data-idx="1">
         <div class="m-media">
           <img src="assets/Landkaart%20interface.png" alt="SocialFind landkaart-tool met provincie geselecteerd">
         </div>
@@ -591,8 +729,7 @@
         </div>
       </article>
 
-      <article class="milestone" data-idx="2" tabindex="-1">
-        <div class="m-roman" aria-hidden="true">III</div>
+      <article class="milestone" data-idx="2">
         <div class="m-media">
           <img src="assets/Russian%20Cards.png" alt="Russian card game speelscherm">
         </div>
@@ -604,8 +741,7 @@
         </div>
       </article>
 
-      <article class="milestone print-final" data-idx="3" tabindex="-1">
-        <div class="m-roman" aria-hidden="true">IV</div>
+      <article class="milestone print-final" data-idx="3">
         <div class="m-media">
           <svg class="viz" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Architectuur klantendashboard">
             <ellipse class="viz-glow" cx="320" cy="180" rx="180" ry="50"></ellipse>
@@ -648,8 +784,7 @@
         </div>
       </article>
 
-      <article class="milestone" data-idx="4" tabindex="-1">
-        <div class="m-roman" aria-hidden="true">V</div>
+      <article class="milestone" data-idx="4">
         <div class="m-media">
           <svg class="viz" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="LinkedIn-automatisering op eigen Hetzner-stack met Claude API">
             <defs>
@@ -775,80 +910,234 @@
       </article>
     </div>
 
-    <!-- Dot-navigator: 5 klikbare staafjes met romeinse cijfers -->
-    <div class="dots" role="tablist" aria-label="Mijlpalen-navigatie">
-      <button class="dot" type="button" role="tab" data-idx="0" aria-label="Mijlpaal 1: Omarchy"><span class="dot-bar"></span><span class="dot-num">I</span></button>
-      <button class="dot" type="button" role="tab" data-idx="1" aria-label="Mijlpaal 2: SocialFind landkaart"><span class="dot-bar"></span><span class="dot-num">II</span></button>
-      <button class="dot" type="button" role="tab" data-idx="2" aria-label="Mijlpaal 3: Russian card game"><span class="dot-bar"></span><span class="dot-num">III</span></button>
-      <button class="dot" type="button" role="tab" data-idx="3" aria-label="Mijlpaal 4: Klantendashboard"><span class="dot-bar"></span><span class="dot-num">IV</span></button>
-      <button class="dot" type="button" role="tab" data-idx="4" aria-label="Mijlpaal 5: LinkedIn-funnel"><span class="dot-bar"></span><span class="dot-num">V</span></button>
-    </div>
-
-    <div class="id-block now" aria-hidden="false">
-      <div class="label">Na</div>
-      <p class="quote">Ik bouw wat ik bedenk.</p>
-      <p class="body">Business innovator met een echte technische basis. Mijn tools draaien in productie bij SocialFind. Creativiteit, techniek en business in één persoon.</p>
-      <div class="tools-grid" aria-label="Mijn huidige stack">
-        <div class="tool"><svg viewBox="0 0 24 24"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg><span>Linux<br>+ WSL</span></div>
-        <div class="tool"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/><circle cx="7" cy="6.5" r=".7" fill="currentColor"/><circle cx="7" cy="12.5" r=".7" fill="currentColor"/><circle cx="7" cy="18" r=".7" fill="currentColor"/></svg><span>Hetzner<br>VPS</span></div>
-        <div class="tool"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="3.5" height="3.5"/><rect x="8.25" y="11" width="3.5" height="3.5"/><rect x="12.5" y="11" width="3.5" height="3.5"/><rect x="8.25" y="7" width="3.5" height="3.5"/><rect x="12.5" y="7" width="3.5" height="3.5"/><path d="M3 15.5c4 2.5 12 2 17 -1 1-0.6 2-2 2-3"/></svg><span>Docker</span></div>
-        <div class="tool"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.5 7.5L17 11"/><path d="M7.5 16.5L17 13"/></svg><span>N8N</span></div>
-        <div class="tool"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Supabase</span></div>
-        <div class="tool"><svg viewBox="0 0 24 24"><path d="M14 3 L4 14 L11 14 L10 21 L20 10 L13 10 Z" fill="currentColor"/></svg><span>Redis</span></div>
-        <div class="tool"><svg viewBox="0 0 24 24"><path d="M12 3 L21 19 L3 19 Z"/></svg><span>Vercel</span></div>
-        <div class="tool"><svg viewBox="0 0 24 24"><path d="M12 2l1.5 8L21 12l-7.5 1.5L12 22l-1.5-8.5L3 12l7.5-2z"/></svg><span>Claude<br>API</span></div>
-        <div class="tool"><svg viewBox="0 0 24 24"><path d="M6 3v6"/><path d="M6 15v6"/><path d="M18 9v6"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/></svg><span>GitHub</span></div>
-      </div>
-      <div class="horizon">
-        <div class="label">Volgende scene</div>
-        <p>Eerst <strong>Linux Essentials-certificaat</strong> halen, geen nieuwe projecten nu. Het doel: de taal van developers vloeiend leren spreken, zodat ik aan technische bedrijven kan laten zien dat ik die wereld begrijp, soepel meekan in technische gesprekken, en mijn positie op de arbeidsmarkt strakker maak.</p>
-      </div>
-    </div>
-
   </section>
 
   <!-- Footer (film-credit-strip) -->
   <div class="footer">
     <span class="name">een film over een transformatie · 2026</span>
-    <span>Nikolay Broeks · Business Innovation Avans</span>
+    <span>← → · sleep over de tijdlijn</span>
   </div>
 
 </main>
 
 <script>
-  // Carousel: één mijlpaal-paneel actief, dot-navigator + keyboard ← →.
-  (() => {
-    const panels = Array.from(document.querySelectorAll('.milestone'));
-    const dots   = Array.from(document.querySelectorAll('.dot'));
-    if (!panels.length || !dots.length) return;
+(() => {
+  const root      = document.documentElement;
+  const playhead  = document.getElementById('playhead');
+  const timeline  = document.getElementById('timeline');
+  const ticks     = Array.from(document.querySelectorAll('.tick'));
+  const milestones = Array.from(document.querySelectorAll('.milestone'));
+  const intro     = document.querySelector('.intro');
+  const phases    = Array.from(document.querySelectorAll('.ph'));
+  const identitiesEl = document.querySelector('.identities');
+  const cardAreaEl   = document.querySelector('.card-area');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    let active = 0;
+  // Track of een mijlpaal al eens geactiveerd is geweest (voor de pulse)
+  const seen = new Set();
 
-    function setActive(idx) {
-      active = Math.max(0, Math.min(panels.length - 1, idx));
-      panels.forEach((p, i) => p.classList.toggle('is-active', i === active));
-      dots.forEach((d, i) => {
-        d.classList.toggle('is-active', i === active);
-        d.setAttribute('aria-selected', i === active ? 'true' : 'false');
-        d.setAttribute('tabindex', i === active ? '0' : '-1');
-      });
+  let p = 0;
+  let dragging = false;
+  // Filmstrook blijft altijd horizontaal — geen verticale fallback meer.
+  const mobileMode = false;
+
+  const milestoneLabels = [
+    'Mijlpaal 1 · Omarchy',
+    'Mijlpaal 2 · SocialFind landkaart',
+    'Mijlpaal 3 · Russian card game',
+    'Mijlpaal 4 · Klantendashboard',
+    'Mijlpaal 5 · LinkedIn-automatisering'
+  ];
+
+  // Plaats de tick-marks
+  function placeTicks() {
+    ticks.forEach(t => {
+      const pos = parseFloat(t.dataset.pos);
+      if (mobileMode) {
+        t.style.top  = (pos * 100) + '%';
+        t.style.left = '50%';
+      } else {
+        t.style.left = (pos * 100) + '%';
+        t.style.top  = '50%';
+      }
+    });
+  }
+  placeTicks();
+  addEventListener('resize', placeTicks);
+
+  // Bepaal welke mijlpaal "actief" is = laatste gepasseerde (incl. binnen ~3% tolerantie)
+  function activeMilestoneIdx(progress) {
+    let idx = -1;
+    for (let i = 0; i < ticks.length; i++) {
+      const pos = parseFloat(ticks[i].dataset.pos);
+      if (progress >= pos - 0.02) idx = i;
+    }
+    return idx;
+  }
+
+  function updatePhases(progress) {
+    let ph = 'start';
+    if (progress > 0.08 && progress < 0.92) ph = 'mid';
+    if (progress >= 0.92) ph = 'end';
+    phases.forEach(el => el.classList.toggle('active', el.dataset.ph === ph));
+  }
+
+  function render() {
+    root.style.setProperty('--p', p.toFixed(4));
+
+    // Playhead positie
+    if (mobileMode) {
+      playhead.style.top  = (p * 100) + '%';
+      playhead.style.left = '50%';
+    } else {
+      playhead.style.left = (p * 100) + '%';
+      playhead.style.top  = '50%';
     }
 
-    dots.forEach((d, i) => {
-      d.addEventListener('click', () => setActive(i));
-    });
+    // Mijlpaal-kaart switchen + huidige tick markeren
+    const activeIdx = activeMilestoneIdx(p);
 
-    document.addEventListener('keydown', e => {
-      switch (e.key) {
-        case 'ArrowRight': setActive(active + 1); e.preventDefault(); break;
-        case 'ArrowLeft':  setActive(active - 1); e.preventDefault(); break;
-        case 'Home': setActive(0); e.preventDefault(); break;
-        case 'End':  setActive(panels.length - 1); e.preventDefault(); break;
+    // Ticks toggle
+    ticks.forEach((t, i) => {
+      const pos = parseFloat(t.dataset.pos);
+      const passed = p >= pos - 0.005;
+      t.classList.toggle('is-passed', passed);
+      t.classList.toggle('is-current', i === activeIdx);
+      if (passed && !seen.has(i) && !reducedMotion) {
+        t.classList.add('just-activated');
+        seen.add(i);
+        setTimeout(() => t.classList.remove('just-activated'), 750);
+      } else if (passed) {
+        seen.add(i);
+      } else {
+        seen.delete(i);
       }
     });
 
-    setActive(0);
-  })();
+    milestones.forEach((m, i) => m.classList.toggle('is-active', i === activeIdx));
+    intro.classList.toggle('is-active', activeIdx === -1);
+
+    // Scene-swap: identities (Voor/Na) en mijlpaal-area zijn wederzijds exclusief
+    const showIdentities = p < 0.13 || p > 0.90;
+    identitiesEl.classList.toggle('is-hidden', !showIdentities);
+    cardAreaEl.classList.toggle('is-hidden', showIdentities);
+
+    // Fase
+    updatePhases(p);
+
+    // ARIA
+    const valueNow = Math.round(p * 100);
+    playhead.setAttribute('aria-valuenow', String(valueNow));
+    let txt = 'Startpunt';
+    if (activeIdx >= 0) txt = milestoneLabels[activeIdx];
+    if (p >= 0.97) txt = 'Nu · ik bouw wat ik bedenk';
+    playhead.setAttribute('aria-valuetext', txt);
+  }
+
+  function setP(value, opts = {}) {
+    p = Math.max(0, Math.min(1, value));
+    if (opts.smooth && !reducedMotion) {
+      // Eenvoudige eased tween naar target
+      const start = parseFloat(root.style.getPropertyValue('--p') || '0');
+      const target = p;
+      const t0 = performance.now();
+      const dur = opts.duration ?? 260;
+      const ease = x => 1 - Math.pow(1 - x, 3);
+      cancelAnimationFrame(setP._raf);
+      const step = now => {
+        const k = Math.min(1, (now - t0) / dur);
+        const curr = start + (target - start) * ease(k);
+        p = curr;
+        render();
+        if (k < 1) setP._raf = requestAnimationFrame(step);
+        else { p = target; render(); }
+      };
+      setP._raf = requestAnimationFrame(step);
+    } else {
+      render();
+    }
+  }
+
+  // Pointer-events (muis + touch via één codepad)
+  function progressFromEvent(e) {
+    const rect = timeline.getBoundingClientRect();
+    if (mobileMode) {
+      return (e.clientY - rect.top) / rect.height;
+    }
+    return (e.clientX - rect.left) / rect.width;
+  }
+
+  function onDown(e) {
+    e.preventDefault();
+    playhead.classList.remove('breathing');
+    dragging = true;
+    playhead.setPointerCapture?.(e.pointerId);
+    setP(progressFromEvent(e));
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    setP(progressFromEvent(e));
+  }
+  function onUp(e) {
+    if (!dragging) return;
+    dragging = false;
+    playhead.releasePointerCapture?.(e.pointerId);
+  }
+
+  playhead.addEventListener('pointerdown', onDown);
+  timeline.addEventListener('pointerdown', e => {
+    // klik op de track (niet op een tick — die heeft eigen handler) = playhead daarheen, sleep verder
+    if (e.target.classList.contains('tick') || e.target.closest('.tick')) return;
+    playhead.classList.remove('breathing');
+    dragging = true;
+    setP(progressFromEvent(e));
+  });
+  addEventListener('pointermove', onMove);
+  addEventListener('pointerup', onUp);
+  addEventListener('pointercancel', onUp);
+
+  // Klik op tick = animeer daarheen
+  ticks.forEach(t => {
+    t.addEventListener('click', e => {
+      e.stopPropagation();
+      playhead.classList.remove('breathing');
+      const pos = parseFloat(t.dataset.pos);
+      setP(pos, { smooth: true });
+      playhead.focus();
+    });
+  });
+
+  // Keyboard
+  playhead.addEventListener('keydown', e => {
+    const small = 0.02, big = 0.10;
+    let handled = true;
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        setP(p + (e.shiftKey ? big : small)); break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        setP(p - (e.shiftKey ? big : small)); break;
+      case 'Home':
+        setP(0, { smooth: true }); break;
+      case 'End':
+        setP(1, { smooth: true }); break;
+      case 'PageUp':
+        setP(p + big); break;
+      case 'PageDown':
+        setP(p - big); break;
+      default:
+        handled = false;
+    }
+    if (handled) {
+      e.preventDefault();
+      playhead.classList.remove('breathing');
+    }
+  });
+
+  // Initial render
+  setP(0);
+})();
 </script>
 </body>
 </html>
