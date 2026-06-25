@@ -262,7 +262,7 @@
   /* ---------- Tijdlijn · 35mm filmstrook ---------- */
   .timeline-wrap {
     position: relative;
-    padding: 30px 14px 30px;
+    padding: 30px 14px 84px;
     user-select: none;
     grid-row: 2;
   }
@@ -316,25 +316,54 @@
     100% { box-shadow: 0 0 18px rgba(232, 199, 126, 0.7); height: 30px; }
   }
 
-  .tick .tick-num {
+  /* Romeinse cijfer · projectnaam · korte beschrijving — alle 5 op dezelfde hoogte */
+  .tick .tick-num,
+  .tick .tick-label,
+  .tick .tick-sub {
     position: absolute;
-    top: calc(100% + 14px);
     left: 50%;
     transform: translateX(-50%);
+    transition: color .35s var(--ease), text-shadow .35s var(--ease);
+    white-space: nowrap;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .tick .tick-num {
+    top: calc(50% + 22px);
     font-family: var(--display);
     font-weight: 400;
     font-size: 14px;
     letter-spacing: 0.08em;
     color: rgba(245, 237, 216, 0.42);
-    transition: color .35s var(--ease), text-shadow .35s var(--ease);
-    white-space: nowrap;
-    text-transform: uppercase;
   }
-  .tick.is-passed .tick-num { color: var(--accent); }
+  .tick .tick-label {
+    top: calc(50% + 42px);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    color: rgba(245, 237, 216, 0.55);
+  }
+  .tick .tick-sub {
+    top: calc(50% + 58px);
+    font-family: var(--mono);
+    font-style: italic;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: rgba(138, 132, 120, 0.75);
+    text-transform: none;
+  }
+  .tick.is-passed .tick-num   { color: var(--accent); }
+  .tick.is-passed .tick-label { color: var(--warm-mute); }
+  .tick.is-passed .tick-sub   { color: rgba(245, 237, 216, 0.55); }
   .tick.is-current .tick-num {
     color: var(--warm-text);
     text-shadow: 0 0 10px rgba(232, 199, 126, 0.7);
   }
+  .tick.is-current .tick-label {
+    color: var(--warm-text);
+    text-shadow: 0 0 6px rgba(232, 199, 126, 0.5);
+  }
+  .tick.is-current .tick-sub { color: var(--warm-mute); }
 
   /* Playhead = simpele witte verticale lijn met dotje */
   .playhead {
@@ -566,11 +595,13 @@
     .id-block .quote { font-size: clamp(26px, 7vw, 36px); }
     .id-block .body, .id-block .horizon p { max-width: 100%; }
 
-    .timeline-wrap { padding: 24px 10px 24px; }
+    .timeline-wrap { padding: 22px 10px 48px; }
     .tick { height: 16px; }
     .tick.is-passed { height: 22px; }
     .tick.is-current { height: 26px; }
-    .tick .tick-num { font-size: 12px; top: calc(100% + 10px); }
+    .tick .tick-num { font-size: 12px; top: calc(50% + 18px); }
+    .tick .tick-label { font-size: 8.5px; top: calc(50% + 34px); letter-spacing: 0.12em; }
+    .tick .tick-sub { display: none; }
     .playhead { height: 48px; }
     .playhead::after { width: 10px; height: 10px; }
     .endcap { font-size: 9px; letter-spacing: 0.22em; top: 8px; }
@@ -674,18 +705,28 @@
         <!-- Mijlpalen — 5 gelijke filmframes op 10%, 30%, 50%, 70%, 90% -->
         <button class="tick" type="button" data-pos="0.10" data-idx="0" aria-label="Act I: Omarchy">
           <span class="tick-num">I</span>
+          <span class="tick-label">Omarchy</span>
+          <span class="tick-sub">Eigen Linux-systeem</span>
         </button>
         <button class="tick" type="button" data-pos="0.30" data-idx="1" aria-label="Act II: SocialFind landkaart">
           <span class="tick-num">II</span>
+          <span class="tick-label">Landkaart-tool</span>
+          <span class="tick-sub">Markt visualiseren</span>
         </button>
         <button class="tick" type="button" data-pos="0.50" data-idx="2" aria-label="Act III: Russian card game">
           <span class="tick-num">III</span>
+          <span class="tick-label">Russian Cards</span>
+          <span class="tick-sub">Eerste echte app</span>
         </button>
         <button class="tick" type="button" data-pos="0.70" data-idx="3" aria-label="Act IV: Klantendashboard">
           <span class="tick-num">IV</span>
+          <span class="tick-label">Klantendashboard</span>
+          <span class="tick-sub">Tool voor klanten</span>
         </button>
         <button class="tick" type="button" data-pos="0.90" data-idx="4" aria-label="Act V: LinkedIn-automatisering">
           <span class="tick-num">V</span>
+          <span class="tick-label">LinkedIn-funnel</span>
+          <span class="tick-sub">Productie-stack</span>
         </button>
 
         <button class="playhead breathing"
